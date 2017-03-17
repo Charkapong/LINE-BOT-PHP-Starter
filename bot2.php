@@ -1,25 +1,8 @@
 <?php
-namespace frontend\controllers;
+$access_token = 'fkHjePJPAl3OkkwnQDWuaXEe9VG2WbtS9AP4kugRPFNrIqf3VkUzoCxX1HVSVZ/GXD+BS2Q+l6V8cl4ZW2jTDcA26AiYVw/BnGCI9WKg2MzgSkCnAqajbk+SA+MJk3+bGj4Tapwi4aSLSw1ZxBvifgdB04t89/1O/w1cDnyilFU=';
+// Get POST body content
 
-use Yii;
-use yii\web\Response;
-
-class LineController extends \yii\web\Controller
-{
-    /**
-     * @inheritdoc
-     */
-    public function beforeAction($action)
-    {
-        if ($action->id == 'callback') {
-            $this->enableCsrfValidation = false; //ปิดการใช้งาน csrf
-        }
-    
-        return parent::beforeAction($action);
-    }
-    
-
-    public function actionCallback()
+public function actionCallback()
     {
         
         $json_string = file_get_contents('php://input');
@@ -63,28 +46,8 @@ class LineController extends \yii\web\Controller
             if(empty($result_text)){//หาจาก en ไม่พบก็บอกว่า ไม่พบข้อมูล ตอบกลับไป
                 $result_text = 'ไม่พบข้อมูล';
             }
-            $response_format_text = ['contentType'=>1,"toType"=>1,"text"=>$result_text];
-            
-        }else if($text_ex[0] == "อากาศ"){//ถ้าพิมพ์มาว่า อากาศ ก็ให้ไปดึง API จาก wunderground มา
-            //http://api.wunderground.com/api/yourkey/forecast/lang:TH/q/Thailand/%E0%B8%81%E0%B8%A3%E0%B8%B8%E0%B8%87%E0%B9%80%E0%B8%97%E0%B8%9E%E0%B8%A1%E0%B8%AB%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B8%A3.json
-            $ch1 = curl_init();
-            curl_setopt($ch1, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch1, CURLOPT_URL, 'http://api.wunderground.com/api/yourkey/forecast/lang:TH/q/Thailand/'.str_replace(' ', '%20', $text_ex[1]).'.json');
-            $result1 = curl_exec($ch1);
-            curl_close($ch1);
-            
-            $obj = json_decode($result1, true);
-            if(isset($obj['forecast']['txt_forecast']['forecastday'][0]['fcttext_metric'])){
-                $result_text = $obj['forecast']['txt_forecast']['forecastday'][0]['fcttext_metric'];
-            }else{//ถ้าไม่เจอกับตอบกลับว่าไม่พบข้อมูล
-                $result_text = 'ไม่พบข้อมูล';
-            }
-            
-            $response_format_text = ['contentType'=>1,"toType"=>1,"text"=>$result_text];
-        }else if($text == 'บอกมา'){//คำอื่นๆ ที่ต้องการให้ Bot ตอบกลับเมื่อโพสคำนี้มา เช่นโพสว่า บอกมา ให้ตอบว่า ความลับนะ
-            $response_format_text = ['contentType'=>1,"toType"=>1,"text"=>"ความลับนะ"];
-        }else{//นอกนั้นให้โพส สวัสดี
+            $response_format_text = ['contentType'=>1,"toType"=>1,"text"=>$result_text];     
+}else{//นอกนั้นให้โพส สวัสดี
             $response_format_text = ['contentType'=>1,"toType"=>1,"text"=>"สวัสดี"];
         }
 
@@ -106,5 +69,3 @@ class LineController extends \yii\web\Controller
         curl_close($ch);
         
     }
-}
-?>
